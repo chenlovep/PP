@@ -3,7 +3,7 @@
 %%---      epsilon 毯子的厚度
 %%---输出：D 分形维数
 
-function [ D E S ] = FastBlanketLFD( Imag, epsilon )
+function [ D E S] = FastBlanketLFD( Imag, epsilon )
 % Imag=rgb2gray(Imag);
 [row,col] = size(Imag);
 % epsilon = 7;
@@ -28,9 +28,12 @@ end
 for i=1:epsilon
     Nr(1,i) = min(Nr1(1,i), Nr2(1,i));
 end
+
 log_x = log(1:epsilon);
 log_y = log(Nr);
-K = polyfit(log_x(1:epsilon),log_y(1:epsilon),1);
+K = polyfit(log_x,log_y,1);
+
+%D是分形维数参数
 D = K(1)+1+K(2)/epsilon;
 %D = K(1)+1;
 E = 0;
@@ -50,7 +53,7 @@ for j=1:col
         end
         if j == 1
             left = j;
-        else 
+          else 
             left = j-1;
         end
         if i == row
