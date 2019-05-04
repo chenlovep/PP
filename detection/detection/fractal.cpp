@@ -19,86 +19,17 @@ double F(double c[], int l, int m);
 double Em[6][4];
 void LineFitLeastSquares(float *data_x, float *data_y, int data_n, vector<float> &vResult, float &a, float &b);
 void kuangtu(Mat Inimg_labels, Mat Inimg_imgstats, Mat Inimg_centriods, unsigned char *imagedata_gray, int m, int n);
-//int FastBlanket(Mat &img, int epsilon)
-//{
-//
-//	float Nr1[5], Nr2[5], Nr[5], log_x[5], log_y[5];
-//	
-//	for (int i = 0; i < img.rows; i++) {
-//		uchar* data = img.ptr<uchar>(i);
-//		int MAX_ = 0;//选取每行图像的最大值
-//		int MIN_ = 300; //选取每行元素的最小值
-//		for (int j = 0; j < img.cols; j++) {
-//			if (MAX_ < data[j]) {
-//				MAX_ = data[j];
-//			}
-//			if (MIN_ > data[j]) {
-//				MIN_ = data[j];
-//			}
-//		}
-//		for (int k = 1; k < 1 + epsilon; k++) {
-//			Nr1[k - 1] = min((255 - MAX_) / k, MIN_ / k);
-//			printf("Nr:%f", Nr1[k - 1]);
-//		}
-//	}
-//	
-//	for (int j = 0; j < img.cols; j++) {
-//		int MAX_ = 0; int MIN_ = 300;
-//		for (int i = 0; i < img.rows; i++) {
-//			uchar* data = img.ptr<uchar>(i);
-//			if (MAX_ < data[j]) {
-//				MAX_ = data[j];
-//			}
-//			if (MIN_ > data[j]) {
-//				MIN_ = data[j];
-//			}
-//		}
-//		for (int k = 1; k < 1 + epsilon; k++) {
-//			Nr2[k - 1] = min((255 - MAX_) / k, MIN_ / k);
-//		}
-//	}
-//
-//	for (int i = 0; i < epsilon; i++) {
-//		Nr[i] = min(Nr1[i], Nr2[i]);
-//	}
-//
-//	
-//	
-//
-//	//拟合方程
-//	printf("succes");
-//	for (int i = 0; i < 5; i++)
-//	{
-//		printf("x=%f\n", log_x[i]);
-//		printf("y=%f\n", log_y[i]);
-//	}
-//	double coefficient[5];
-//	memset(coefficient, 0, sizeof(double) * 5);
-//	vector<double> vx, vy;
-//	for (int i = 0; i < 5; i++)
-//	{
-//		vx.push_back(log_x[i]);
-//		vy.push_back(log_y[i]);
-//	}
-//	EMatrix(vx, vy, 5, 3, coefficient);
-//	printf("拟合方程为：y = %lf + %lfx + %lfx^2 \n", coefficient[1], coefficient[2], coefficient[3]);
-//	int D = coefficient[2] + 1 + coefficient[1] / 5;
-//	/*for (int  i = 0; i < 5; i++)
-//	{
-//		E = E + abs(log)
-//	}*/
-//	return D;
-//}
+
 
 void Fractal(Mat dst, int epsilon, float &s, float &d, float &e);
-void S_E_selection(unsigned char *Inimg, unsigned char *s, unsigned char *d, unsigned char *e, unsigned char *imagedata_gray,int height, int width);
+void S_E_selection(Mat gray, unsigned char *Inimg, unsigned char *s, unsigned char *d, unsigned char *e, unsigned char *imagedata_gray,int height, int width);
+void kuangtu(Mat gray,int ID, Mat Inimg_imgstats);
 int FastBlanket(unsigned char *Inimg, int height, int width, unsigned char *imagedata_gray)
 {
 	Mat mat(height, width,CV_8UC1, Inimg);
 	
 
-	Mat a(height, width, CV_8UC1, imagedata_gray), Inimg_labels, Inimg_stats, Inimg_centriods;
-	imshow("asdfwe", a);
+	Mat gray(height, width, CV_8UC1, imagedata_gray), Inimg_labels, Inimg_stats, Inimg_centriods;
 	int epsilon = 5;
 	int template_size = 5;
 	float s_,d_,e_;
@@ -130,43 +61,15 @@ int FastBlanket(unsigned char *Inimg, int height, int width, unsigned char *imag
 		}
 	}
 	//对分型维数分型误差进行处理
-	S_E_selection(Inimg, s, d, e, imagedata_gray, height, width);
+	S_E_selection(gray, Inimg, s, d, e, imagedata_gray, height, width);
 
-	/*
-	//拟合方程
-	//printf("succes");
-	for (int i = 0; i < 5; i++)
-	{
-		printf("x=%f\n", log_x[i]);
-		printf("y=%f\n", log_y[i]);
-	}
-	double coefficient[5];
-	memset(coefficient, 0, sizeof(double) * 5);
-	vector<double> vx, vy;
-	for (int i = 0; i < 5; i++)
-	{
-		vx.push_back(log_x[i]);
-		vy.push_back(log_y[i]);
-	}
-	EMatrix(vx, vy, 5, 3, coefficient);
-	printf("拟合方程为：y = %lf + %lfx + %lfx^2 \n", coefficient[1], coefficient[2], coefficient[3]);
-	double D = coefficient[2] + 1 + coefficient[1] / 5;
-	double E = 0;
-	for (int i = 0; i < epsilon; i++)
-	{
-		E = E + abs(log(Nr[i]) - coefficient[1] * log(i));
-	}
-	printf("%ld", D);
-	*/
 	return 0;
 }
 
 
-void S_E_selection(unsigned char *Inimg, unsigned char *s, unsigned char *d, unsigned char *e, unsigned char *imagedata_gray,int height, int width) {
+void S_E_selection(Mat gray, unsigned char *Inimg, unsigned char *s, unsigned char *d, unsigned char *e, unsigned char *imagedata_gray, int height, int width) {
 	Mat Inimg_labels, Inimg_imgstats, Inimg_centriods, Inimg_label(height, width, CV_8UC1, Inimg);
 	int Inimg_imglabelnum = connectedComponentsWithStats(Inimg_label, Inimg_labels, Inimg_imgstats, Inimg_centriods);
-	imshow("asdfasf",Inimg_label);
-	cout << "Inimg:" <<Inimg_imglabelnum << endl;
 	float *Inimg_s = new float[Inimg_imglabelnum];
 	float *Inimg_e = new float[Inimg_imglabelnum];
 	int *Inimg_num = new int[Inimg_imglabelnum];
@@ -184,45 +87,90 @@ void S_E_selection(unsigned char *Inimg, unsigned char *s, unsigned char *d, uns
 			}
 		}
 	}
+
 	int *M_dex = new int[2];//分型维数
 	//整个区域的分型维数
 	for (int i = 1; i < Inimg_imglabelnum; i++)
 		cout << "第" << i << "个区域的分型维数:" << Inimg_s[i] << endl;
-		
+
 	for (int i = 1; i < Inimg_imglabelnum; i++)
 		cout << "第" << i << "个区域的分型误差:" << Inimg_e[i] << endl;
 
 	for (int i = 1; i < Inimg_imglabelnum; i++)
 		cout << "第" << i << "个区域数量:" << Inimg_num[i] << endl;
-	//分形维数
-	float average_frat=0.0;
+
+	//平均分形维数
+	float average_frat = 0.0, average_wucha = 0.0;
 	for (int i = 1; i < Inimg_imglabelnum; i++) {
-		average_frat += Inimg_s[i] / Inimg_num[i];
-		cout << Inimg_s[i] / Inimg_num[i] << endl;;
+		average_frat += (float)Inimg_s[i] / Inimg_num[i];
+		average_wucha += (float)Inimg_e[i] / Inimg_num[i];
+		cout << "分型误差:"<<Inimg_e[i] / Inimg_num[i] << endl;
 	}
+	for (int i = 1; i < Inimg_imglabelnum; i++) {
+		cout << "分型维数:" << Inimg_s[i] / Inimg_num[i] << endl;
+	}
+	average_frat = (float)average_frat / Inimg_imglabelnum;
+	average_wucha = (float)average_wucha / Inimg_imglabelnum;
+	printf("%f\n", average_frat);
+	printf("%f\n", average_wucha);
+	//将分型误差最低的a个目标排除
+	int a = 2;
+	int *fra_label = new int[a];
+	for (int k = 0; k < a; k++) {
+		float MIN = 100;int MIN_label = 1;
+		for (int i = 1; i < Inimg_imglabelnum; i++) {
+			if (MIN > (float)Inimg_e[i]/Inimg_num[i]) {
+				MIN = (float)Inimg_e[i]/Inimg_num[i];
+				MIN_label = i;
+			}
+		}
+		fra_label[k] = MIN_label;
+		Inimg_e[MIN_label] = 10000;
+	}
+	cout << fra_label << endl;
 	
-	average_frat /= Inimg_imglabelnum;
-	printf("%f", average_frat);
-	Mat a(height, width, CV_8UC1, Inimg);
-	for (int i = 0; i < 2; i++) {
-		cout << M_dex[i] << endl;
-		for (int m = 0; m < height; m++)
-			for (int n = 0; n < width; n++)
-				if (Inimg_labels.at<int>(m, n) >= average_frat)
-					*(Inimg + m*width + n) = 0;
-				else
-					kuangtu(Inimg_labels, Inimg_imgstats, Inimg_centriods, imagedata_gray,m,n);
+	//将分型维数最低的b个目标排除
+	int b = 5;
+	int *wucha_label = new int[a];
+	for (int i = 0; i < b; i++) {
+		float MIN = 100;int MIN_label = 1;
+		for (int i = 1; i < Inimg_imglabelnum; i++) {
+			if (MIN > (float)Inimg_s[i] / Inimg_num[i]) {
+				MIN = (float)Inimg_s[i] / Inimg_num[i];
+				MIN_label = i;
+			}
+		}
+		if (MIN_label != fra_label[0] && MIN_label != fra_label[1])
+			wucha_label[i] = MIN_label;
+		else
+			i -= 1;
+		Inimg_s[MIN_label] = 10000;
 	}
-	imshow("分形维数", a);
+
+
+	for (int i = 0; i < 2; i++) {
+		cout << fra_label[i] << '\t' << wucha_label[i] << endl;
+	}
+	for (int j = 1; j < Inimg_imglabelnum; j++) {
+		if (j != wucha_label[0] && j != wucha_label[1] && j != wucha_label[2] && j != wucha_label[3] && j != wucha_label[4] &&j != fra_label[0] && j != fra_label[1] && (float)Inimg_s[j]/Inimg_num[j] > average_frat)
+			kuangtu(gray, j, Inimg_imgstats);
+	}
+
 }
 //标签矩阵 Inimg_labels
 //矩形矩阵 Inimg_imgstats
 //中心矩阵 Inimg_centriods
 //灰度图像 imagedata_gray
-void kuangtu(Mat Inimg_labels,Mat Inimg_imgstats,Mat Inimg_centriods,unsigned char *imagedata_gray,int m,int n) {
-	Mat window_pic(Inimg_labels.rows, Inimg_labels.cols, CV_8UC1, imagedata_gray);
-	Inimg_centriods.at<int>(m,n)
-	rectangle(window_pic, );
+void kuangtu(Mat gray, int ID, Mat Inimg_imgstats) {
+	int left_x =  Inimg_imgstats.at<int>(ID, CC_STAT_LEFT);
+	int top_y =  Inimg_imgstats.at<int>(ID, CC_STAT_TOP);
+	int height = Inimg_imgstats.at<int>(ID, CC_STAT_HEIGHT);
+	int width = Inimg_imgstats.at<int>(ID, CC_STAT_WIDTH);
+	//cout << "gao" << Inimg_labels.rows << "chang" << Inimg_labels.cols << endl;
+	rectangle(gray, Rect(left_x, top_y, width, height), Scalar(255, 0, 0));
+//	rectangle(a, Rect(center_x-height/2, center_y-width/2, height,width), Scalar(255,0,0));
+	imshow("kuangtu", gray);
+
 }
 
 
@@ -242,30 +190,34 @@ void Fractal(Mat dst, int epsilon, float &s, float &d, float &e) {
 	for (int k = 0; k < epsilon; k++) {
 		//按行
 		for (int i = 0; i < dst.rows; i++) {
-			int MAX_row = 0;
+			int MAX_row = 0, MIN_row=300;
 			for (int j = 0; j < dst.cols; j++) {
-				if (*(dst_data + j*dst.rows + i) > MAX_row)
+				if (*(dst_data + i*dst.cols + j) > MAX_row)
 					MAX_row = *(dst_data + i*dst.cols + j);
+				if (*(dst_data + i*dst.cols + j) < MIN_row)
+					MIN_row = *(dst_data + i*dst.cols + j);
 			}
 			if (MAX_a < MAX_row)
 				MAX_a = MAX_row;
-			if (MIN_a > MAX_row)
-				MIN_a = MAX_row;
+			if (MIN_a > MIN_row)
+				MIN_a = MIN_row;
 		}
 		//int k = k;
 		N[0][k] = min((255 - MAX_a) / (k + 1), MIN_a / (k + 1));
 
 		//按列
 		for (int i = 0; i < dst.cols; i++) {
-			int MAX_col = 0;
+			int MAX_col = 0, MIN_col = 300;
 			for (int j = 0; j < dst.rows; j++) {
 				if (*(dst_data + j*dst.cols + i) > MAX_col)
 					MAX_col = *(dst_data + j*dst.cols + i);
+				if (*(dst_data + j*dst.cols + i) < MIN_col)
+					MIN_col = *(dst_data + j*dst.cols + i);
 			}
 			if (MAX_b < MAX_col)
 				MAX_b = MAX_col;
-			if (MIN_b > MAX_col)
-				MIN_b = MAX_col;
+			if (MIN_b > MIN_col)
+				MIN_b = MIN_col;
 		}
 		N[1][k] = min((255 - MAX_b) / (k + 1), MIN_b / (k + 1));
 
@@ -299,11 +251,11 @@ void Fractal(Mat dst, int epsilon, float &s, float &d, float &e) {
 	if (isnan(b)) {
 		b = 0;
 	}
-	d = a + 1 + b/epsilon;
+	d = a + 1;// +b / epsilon;
 	e = 0.0;
 	s = b;
 	for (int i = 0; i < epsilon; i++) {
-		e += abs(N[4][i]-a*N[3][i]);
+		e += abs(N[4][i]-(a)*N[3][i]);
 	}
 	//cout << "d=" << d << "e=" << e << "s+" << s << endl;
 }
